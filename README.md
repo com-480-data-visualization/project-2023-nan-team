@@ -55,8 +55,7 @@ We got the idea after seeing Terence Fosstodon’s work. We liked how it turned 
 
 <!-- ![alt text](images\image1.jpg | width=100) ![alt text](images\image2.jpg)  -->
 
-<img src="images\image1.jpg" width= "48%" >
-<img src="images\image2.jpg" width= "48%" >
+<img src="images\image1.jpg" width= "45%" > <img src="images\image2.jpg" width= "45%" >
 ## Milestone 2 (7th May, 5pm)
 
 **10% of the final grade**
