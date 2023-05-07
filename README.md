@@ -83,7 +83,7 @@ While this MVP is useful for demographic analysis, it has some limitations. We o
 In the final version, we plan to add a 3D grid-based visualization that utilizes the same map view selected on the 2D heatmap. This will make the site more visually appealing to users and potentially highlight other behaviors. Additionally, we need to create a cohesive visual identity for the entire site. We also want to include pop-ups on the map to display more detailed information about a region or city when the user hovers over it.
 
 Here is a visual sketch for this part:
-<img src="images\image5.png" width= "48%" > <img src="images\image6.png" width= "48%" >
+<img src="images\image5.png" width= "45%" > <img src="images\image6.png" width= "45%" >
 
 To implement these new features, we plan to use three.js to create the 3D scene. We will also require knowledge of the Map lecture and the perception of color lecture to enhance the visualization further.
 
