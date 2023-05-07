@@ -36,6 +36,7 @@ We will start with only Switzerland and we might add more countries.
 We use the WorldPop dataset, which is a dataset containing a map of the density of population from 2000 to 2020. We will mainly focus on the data from Switzerland which contains 68K data per year. 
 We firstly had to concatenate datasets from WorldPop as they are divided by country and by year. The dataset in itself is quite clean as there are not many columns, namely the year, the latitude, the longitude and the density. The density goes from 0 to 20021 pop/km^2, the latitude from 5° to 10°, the longitude from 45° to 27°.
 Here are some basic graph on this dataset:
+
 <img src="images\image3.png" width= "48%" > <img src="images\image4.png" width= "48%" >
 
 
