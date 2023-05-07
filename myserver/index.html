@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Three.js and D3.js Map Example</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script>
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+      var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+      // Load the world map using D3.js
+      d3.json('https://unpkg.com/world-atlas/world/110m.json').then(function (world) {
+        var countries = topojson.feature(world, world.objects.countries).features;
+        var material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var group = new THREE.Group();
+        countries.forEach(function (country) {
+          var geometry = new THREE.BufferGeometry();
+          var vertices = [];
+          country.geometry.coordinates.forEach(function (polygon) {
+            polygon.forEach(function (point) {
+              vertices.push(point[0], point[1], 0);
+            });
+          });
+          geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+          var mesh = new THREE.Mesh(geometry, material);
+          group.add(mesh);
+        });
+        scene.add(group);
+
+        // Add a click event listener to the scene
+        var raycaster = new THREE.Raycaster();
+        var mouse = new THREE.Vector2();
+        renderer.domElement.addEventListener('click', function (event) {
+          event.preventDefault();
+          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+          mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+          raycaster.setFromCamera(mouse, camera);
+          var intersects = raycaster.intersectObjects(group.children);
+          if (intersects.length > 0) {
+            // Zoom in on the clicked country
+            var country = intersects[0].object;
+            var box = new THREE.Box3().setFromObject(country);
+            var center = box.getCenter(new THREE.Vector3());
+            var size = box.getSize(new THREE.Vector3());
+            var distance = Math.max(size.x, size.y, size.z);
+            var fov = camera.fov * (Math.PI / 180);
+            var aspect = window.innerWidth / window.innerHeight;
+            var cameraDistance = distance / (2 * Math.tan(fov / 2));
+            camera.position.set(center.x, center.y, cameraDistance);
+            controls.target.set(center.x, center.y, 0);
+          }
+        }, false);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    </script>
+  </body>
+</html>
