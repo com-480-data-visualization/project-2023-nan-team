@@ -16,11 +16,14 @@ let clicked = false
 let clickedElem = null
 let radius = 1
 let heatmapData = []
-let heatmap = L.heatLayer([], {radius: radius, gradient: gradient}).addTo(map);
 
 // Initialize the map
 const EPFLGeo = [46.5192, 6.5662]
 const map = L.map('map').setView(EPFLGeo, 5)
+
+// Add heatMap on map
+let heatmap = L.heatLayer([], {radius: radius, gradient: gradient}).addTo(map);
+
 // Add the tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
@@ -37,35 +40,33 @@ d3.json('/geojson')
         fillOpacity: 0,
       },
       onEachFeature: (feature, layer) => {
-        layer.on('mouseover', function() {
-          if(clicked && clickedElem != this) { // TODO: change logic
-            this.setStyle({
-              fillOpacity: 0.5,
-            });
+        // Add a mouseover event to highlight the country
+        layer.on('mouseover', e => {
+          if(clicked && clickedElem == e.target) { // TODO: change logic
             return
           }
 
-          this.setStyle({
+          e.target.setStyle({
             fillOpacity: 0.5,
           });
         });
         // Add a mouseout event to unhighlight the country
-        layer.on('mouseout', _ => {
-          if(clicked && clickedElem != this) { // TODO: change logic
-            this.setStyle({
+        layer.on('mouseout', e => {
+          if(clicked && clickedElem != e.target) { // TODO: change logic
+            e.target.setStyle({
               fillOpacity: 0.8,
             });
             return
           }
-          this.setStyle({
+          e.target.setStyle({
             fillOpacity: 0,
           });
         });
 
-        layer.on('click', _ => {
+        layer.on('click', e => {
           clicked = true
-          clickedElem = this
-          this.setStyle({
+          clickedElem = e.target
+          e.target.setStyle({
             fillColor: '#000',
             opacity: 0,
             fillOpacity: 0
@@ -95,9 +96,9 @@ d3.json('/geojson')
           }).addTo(map);
           */
           
-          map.fitBounds(this.getBounds());
+          map.fitBounds(e.target.getBounds());
 
-          const this_path = this._path;
+          const this_path = e.target._path;
           map.eachLayer(l => {
             if (l._path != this_path && l._path != undefined) {
               l.setStyle({
@@ -115,7 +116,7 @@ d3.json('/geojson')
 
 d3.csv("/swiss_all").then((data) => {
   data.forEach((d) => {
-    if(!d.year in populationData) {
+    if(!(d.year in populationData)) {
       populationData[d.year] = [];
     }
 
