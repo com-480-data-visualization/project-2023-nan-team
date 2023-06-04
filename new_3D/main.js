@@ -1,7 +1,7 @@
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -82,7 +82,7 @@ d3.csv("/new_3D/data/swiss_all_8.csv", function(data) {
 
     const normalizedZ = (z - minZ) / (maxZ - minZ);
 
-    const colorMap = d3.interpolateRgb("blue", "red");
+    const colorMap = d3.interpolateRgb("white", "rgb(4,170,109)");
     const color = new THREE.Color(colorMap(normalizedZ));
 
     return color;

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Map Example</title>
+    <title>Population Density in Europe</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="/css/nouislider.css" />
     <!-- <link rel="stylesheet" href="/css/style.css" /> -->
@@ -13,9 +13,17 @@
     <script src="/js/three.min.js"></script>
     <script src="/js/TrackballControls.js"></script>
     <style>
+
       body {
-        overflow: hidden;
+        background: rgb(255,255,255);
+        background: linear-gradient(180deg, rgb(57, 164, 137) 0%, rgba(255,255,255,1) 28%);
+        overflow:hidden;
       }
+      
+      h1{
+        color:white;
+        font-family: 'Geologica', sans-serif;}
+
       .container {
         width: 90%;
         margin-top: 100px;
@@ -87,6 +95,9 @@
         </div>
       </div>
     </div> -->
+    <div>
+      <h1>Population Density in Europe</h1>
+    </div>
     <div class="container">
       <div id="siv_slider_years">
         <div id="slider"></div>
