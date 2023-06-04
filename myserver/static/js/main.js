@@ -62,7 +62,19 @@ btnPerspective3D.addEventListener("click", e => {
   const countryName = e.target.getAttribute("country");
   d3.csv(`/country/${countryName}`).then(data => {
     let mergedMeshes = []; // Declare an array to store all merged meshes
-
+    // make mean of data coordinates:
+    let meanX = 0;
+    let meanY = 0;
+    let meanZ = 0;
+    
+    for (let i = 0; i < data.length; i++) {
+      meanX += parseFloat(data[i].X);
+      meanY += parseFloat(data[i].Y);
+      meanZ += parseFloat(data[i].Z);
+    }
+    meanX /= data.length;
+    meanY /= data.length;
+    meanZ /= data.length;
     function updateData() {
       // Remove the existing mergedMeshes from the scene
       mergedMeshes.forEach(function(mergedMesh) {
@@ -233,29 +245,35 @@ btnPerspective3D.addEventListener("click", e => {
 
 
 // Function to handle camera movement
-    function handleCameraMovement() {
-      const moveSpeed = 0.1; // Adjust the movement speed as needed
+function handleCameraMovement() {
+  const moveSpeed = 0.1; // Adjust the movement speed as needed
 
-      // Move camera based on movement variables
-      if (moveForward) {
-        camera.position.y += moveSpeed;
-      }
-      if (moveBackward) {
-        camera.position.y -= moveSpeed;
-      }
-      if (moveLeft) {
-        camera.position.x -= moveSpeed;
-      }
-      if (moveRight) {
-        camera.position.x += moveSpeed;
-      }
-    }
+  // Get the camera direction
+  const cameraDirection = new THREE.Vector3();
+  camera.getWorldDirection(cameraDirection);
+
+  // Move camera based on movement variables
+  if (moveBackward) {
+    camera.position.add(cameraDirection.multiplyScalar(-moveSpeed));
+  }
+  if (moveForward) {
+    camera.position.add(cameraDirection.multiplyScalar(moveSpeed));
+  }
+  if (moveLeft) {
+    camera.position.add(cameraDirection.cross(new THREE.Vector3(0, 1, 1)).multiplyScalar(-moveSpeed));
+  }
+  if (moveRight) {
+    camera.position.add(cameraDirection.cross(new THREE.Vector3(0, 1, 1)).multiplyScalar(moveSpeed));
+  }
+}
 
 
     // Set the camera position
     camera.position.z = 20;
     camera.position.x = 0;
     camera.position.y = 0;
+    camera.lookAt(scene.position);
+
 
     function animate() {
       requestAnimationFrame(animate);
