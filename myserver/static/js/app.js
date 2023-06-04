@@ -12,7 +12,7 @@ const populationData = {}
 const gradient = {
   0.1: 'red', 
   0.2: 'yellow', 
-  0.3: 'green', 
+  0.3: 'green',
   0.4: "purple", 
   0.5: 'blue',
   0.6: 'orange',
@@ -174,7 +174,7 @@ const CANVAS_WIDTH = container.offsetWidth;
 const CANVAS_HEIGHT = container.offsetHeight;
 console.log(CANVAS_WIDTH, CANVAS_HEIGHT)
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( CANVAS_WIDTH, CANVAS_HEIGHT );
 container.appendChild( renderer.domElement );
@@ -291,6 +291,7 @@ btnPerspective3D.addEventListener("click", e => {
       const normalizedZ = (z - minZ) / (maxZ - minZ);
 
       const colorMap = d3.interpolateRgb("blue", "red");
+      // const colorMap = d3.interpolateRgb("white", "rgb(4, 170, 109)");
       const color = new THREE.Color(colorMap(normalizedZ));
 
       return color;
