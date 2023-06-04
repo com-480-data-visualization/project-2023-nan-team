@@ -3,6 +3,7 @@ const loading = document.getElementById("loading");
 const btnPerspective3D = document.getElementById("Perspective_3d");
 const btn3Dquit = document.getElementById("quit3D");
 const map2 = document.getElementById("map");
+const radiusButton = document.getElementById("radiusInput");
 
 // const container = document.getElementById("canvas");
 const container = document.getElementById( 'canvas' );
@@ -10,20 +11,21 @@ document.body.appendChild( container );
 
 const populationData = {}
 const gradient = {
-  0.1: 'red', 
-  0.2: 'yellow', 
-  0.3: 'green',
-  0.4: "purple", 
-  0.5: 'blue',
-  0.6: 'orange',
-  0.7: 'black',
-  0.8: 'white',
-  0.9: 'grey',
-  1.0: 'pink'
-}; 
+  0.1: '#01623E',
+  0.2: '#017D50',
+  0.3: '#029A62',
+  0.4: "#02B875",
+  0.5: '#02D588',
+  0.6: '#02F29A',
+  0.7: '#33FDB3',
+  0.8: '#6DFEC9',
+  0.9: '#A7FEDE',
+  1.0: '#E2FFF4'
+};
+
 let clicked = false
 let clickedElem = null
-let radius = 1
+let radius = 5
 let heatmapData = []
 
 noUiSlider.create(slider, {
@@ -65,16 +67,24 @@ d3.json('/geojson')
           if (clicked && clickedElem == e.target) { // TODO: change logic
             return
           }
-
+          if(!clicked) {
+            e.target.setStyle({
+              fillOpacity: 0.5,
+              fillColor: '#aaa',
+            });
+            return;
+          }
           e.target.setStyle({
-            fillOpacity: 0.5,
+            fillOpacity: 0.9,
+            fillColor: '#aaa',
           });
         });
         // Add a mouseout event to unhighlight the country
         layer.on('mouseout', e => {
           if (clicked && clickedElem != e.target) { // TODO: change logic
             e.target.setStyle({
-              fillOpacity: 0.8,
+              fillOpacity: 0.9,
+              fillColor: '#000',
             });
             return
           }
@@ -84,6 +94,10 @@ d3.json('/geojson')
         });
 
         layer.on('click', e => {
+          // heatmap = L.heatLayer([]).addTo(map);
+          heatmap.setLatLngs([]);
+
+          // Refresh the heat layer to reflect the changes
           clicked = true
           clickedElem = e.target
           e.target.setStyle({
@@ -91,11 +105,10 @@ d3.json('/geojson')
             opacity: 0,
             fillOpacity: 0
           });
+
           const countryName = e.target.feature.properties.ADMIN;
           btnPerspective3D.setAttribute("country", countryName)
-          console.log(e.target)
           d3.csv(`/country/${countryName}`).then(data => {
-            console.log("data", data)
             data.forEach((d) => {
               if (!(d.year in populationData)) {
                 populationData[d.year] = [];
@@ -103,7 +116,6 @@ d3.json('/geojson')
 
               populationData[d.year].push({lng: d.X, lat: d.Y, pop: d.Z});
             })
-            console.log(populationData)
 
             slider.noUiSlider.on('update', (values, handle) => {
               const year = parseInt(values[handle]);
@@ -124,8 +136,8 @@ d3.json('/geojson')
             if (l._path != this_path && l._path != undefined) {
               l.setStyle({
                 fillColor: '#000',
-                opacity: 0.8,
-                fillOpacity: 0.8
+                opacity: 0.9,
+                fillOpacity: 0.9
               });
             }
           });
@@ -157,10 +169,8 @@ function getRadius(zoom) {
   return Math.pow(2, zoom) / 20;
 }
 */
-
-document.querySelector(`#slider_radius`).addEventListener(`input`, e => {
+radiusButton.addEventListener(`change`, e => {
   radius = parseInt(e.target.value)
-  document.querySelector(`#output_radius`).innerHTML = radius
   heatmap.setOptions({ radius: parseInt(radius) });
 })
 
@@ -172,7 +182,6 @@ btn3Dquit.addEventListener("click", function() {
 // THREEJS Part
 const CANVAS_WIDTH = container.offsetWidth;
 const CANVAS_HEIGHT = container.offsetHeight;
-console.log(CANVAS_WIDTH, CANVAS_HEIGHT)
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio( window.devicePixelRatio );
@@ -270,7 +279,6 @@ btnPerspective3D.addEventListener("click", e => {
         mergedMesh.visible = (year == currentYear)
         scene.add(mergedMesh);
         mergedMeshes.push(mergedMesh);
-        console.log(mergedMeshes);
       }
 
       loading.style.visibility = "hidden";
@@ -280,7 +288,6 @@ btnPerspective3D.addEventListener("click", e => {
       currentYear = year;
       mergedMeshes.forEach(function(mesh,idx) {
         mesh.visible = idx+2000 == year;
-        console.log(mesh.visible);
       });
     }
     // Function to map the Z value to a color
@@ -434,10 +441,12 @@ btnPerspective3D.addEventListener("click", e => {
     function animate() {
       requestAnimationFrame(animate);
       handleCameraMovement();
+
       // camera.lookAt(scene.position);
       renderer.render(scene, camera);
     }
 
     animate();
   });
+  // Add OrbitControls to the scene
 });

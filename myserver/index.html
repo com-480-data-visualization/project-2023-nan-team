@@ -13,7 +13,6 @@
     <script src="/js/three.min.js"></script>
     <script src="/js/TrackballControls.js"></script>
     <style>
-
       body {
         background: rgb(255,255,255);
         background: linear-gradient(180deg, rgb(57, 164, 137) 0%, rgba(255,255,255,1) 28%);
@@ -44,10 +43,8 @@
         top: 10px;
         right: 10px;
         z-index: 1000;
-        background-color: rgba(255, 255, 255, 0.6);
-      }
-      #div_slider_radius {
-        margin-top: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        font-weight: bold;
       }
       #canvas {
         /*background-color: #000;*/
@@ -90,6 +87,60 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+      #map-controls {
+        font-weight: bold;
+      }
+      #radiusInput {
+        width: 35px;
+      }
+      .map-2d-control-item {
+
+      }
+      .map-2d-legend-table {
+        width: 100%;
+        height: auto;
+      }
+      .map-2d-legend-color {
+        width: 45px;
+        height: 20px;
+        display: inline-block;
+      }
+      .map-2d-legend-color-name {
+        width: 45px;
+        height: 20px;
+        display: inline-block;
+      }
+
+      .map-2d-legend-color-01 {
+          background-color: #01623E;
+      }
+      .map-2d-legend-color-02 {
+          background-color: #017D50;
+      }
+      .map-2d-legend-color-03 {
+          background-color: #029A62;
+      }
+      .map-2d-legend-color-04 {
+          background-color: #02B875;
+      }
+      .map-2d-legend-color-05 {
+          background-color: #02D588;
+      }
+      .map-2d-legend-color-06 {
+          background-color: #02F29A;
+      }
+      .map-2d-legend-color-07 {
+          background-color: #33FDB3;
+      }
+      .map-2d-legend-color-08 {
+          background-color: #6DFEC9;
+      }
+      .map-2d-legend-color-09 {
+          background-color: #A7FEDE;
+      }
+      .map-2d-legend-color-1 {
+          background-color: #E2FFF4;
+      }
     </style>
   </head>
   <body id="body">
@@ -113,23 +164,73 @@
       <div id="siv_slider_years">
         <div id="slider"></div>
       </div>
-      <div id="div_slider_radius">
-        <label for="slider_radius">Radius</label>
-        <input type="range" min="1" max="20" value="1" class="slider" id="slider_radius">
-        <output id="output_radius">1</output>
-      </div>
     </div>
     <div id="visualizationContainer">
       <div id="map">
         <div id="customsControls">
-          <fieldset>
+          <fieldset id="map-controls">
             <legend>Controls</legend>
-            <button id="Perspective_3d">
-              3D view
-            </button>
-            <br/>
-            <label for="toggleHeatmap">Heatmap</label>
-            <input type="checkbox" id="toggleHeatmap" checked="checked" />
+            <div class="map-2d-control-item">
+              <button id="Perspective_3d">
+                3D view
+              </button>
+            </div>
+            <div class="map-2d-control-item">
+              <label for="toggleHeatmap">Heatmap</label>
+              <input type="checkbox" id="toggleHeatmap" checked="checked" />
+            </div>
+            <div class="map-2d-control-item">
+              <label for="radiusInput">Radius</label>
+              <input type="number" id="radiusInput" value="5"/>
+            </div>
+
+            <div class="map-2d-control-item">
+              <div class="map-2d-legend-table">
+                <div class="map-2d-legend-text">
+                  <p>Population density <br/> per radius</p>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.1</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-01"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.2</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-02"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.3</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-03"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.4</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-04"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.5</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-05"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.6</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-06"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.7</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-07"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.8</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-08"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>0.9</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-09"></div>
+                </div>
+                <div class="map-2d-legend-row">
+                  <div class="map-2d-legend-color-name"><span>01</span></div>
+                  <div class="map-2d-legend-color map-2d-legend-color-1"></div>
+                </div>
+              </div>
+            </div>
           </fieldset>
         </div>
       </div>
