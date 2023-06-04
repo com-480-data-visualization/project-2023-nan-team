@@ -17,6 +17,19 @@ let clickedElem = null
 let radius = 1
 let heatmapData = []
 
+noUiSlider.create(slider, {
+  range: {
+    min: 2000,
+    max: 2020
+  },
+  step: 1,
+  tooltips: true,
+  start: [2000],
+  behaviour: 'tap-drag',
+});
+
+// const btnPerspective3D = document.getElementById("Perspective_3d");
+
 // Initialize the map
 const EPFLGeo = [46.5192, 6.5662]
 const map = L.map('map').setView(EPFLGeo, 5)
@@ -42,7 +55,7 @@ d3.json('/geojson')
       onEachFeature: (feature, layer) => {
         // Add a mouseover event to highlight the country
         layer.on('mouseover', e => {
-          if(clicked && clickedElem == e.target) { // TODO: change logic
+          if (clicked && clickedElem == e.target) { // TODO: change logic
             return
           }
 
@@ -52,7 +65,7 @@ d3.json('/geojson')
         });
         // Add a mouseout event to unhighlight the country
         layer.on('mouseout', e => {
-          if(clicked && clickedElem != e.target) { // TODO: change logic
+          if (clicked && clickedElem != e.target) { // TODO: change logic
             e.target.setStyle({
               fillOpacity: 0.8,
             });
@@ -63,6 +76,52 @@ d3.json('/geojson')
           });
         });
 
+        // layer.on('click', e => {
+        //   clicked = true
+        //   clickedElem = e.target
+        //   e.target.setStyle({
+        //     fillColor: '#000',
+        //     opacity: 0,
+        //     fillOpacity: 0
+        //   });
+        //
+        //   // Markers to see the bounds of the country
+        //   /*
+        //   const markerShape = "M0,-10L10,10L-10,10Z";
+        //   const arrGeo = [this.getBounds()._northEast.lat, this.getBounds()._northEast.lng] //, this.getBounds()._southWest.lat, this.getBounds()._southWest.lng]
+        //   const marker = L.marker(arrGeo, {
+        //     icon: L.divIcon({
+        //       className: 'my-div-icon',
+        //       html: '<svg width="20" height="20"><path d="' + markerShape + '" fill="red"></path></svg>',
+        //       iconSize: [20, 20],
+        //       iconAnchor: [10, 10],
+        //     }),
+        //   }).addTo(map);
+        //
+        //   const arrGeo2 = [this.getBounds()._southWest.lat, this.getBounds()._southWest.lng]
+        //   const marker2 = L.marker(arrGeo2, {
+        //     icon: L.divIcon({
+        //       className: 'my-div-icon',
+        //       html: '<svg width="20" height="20"><path d="' + markerShape + '" fill="red"></path></svg>',
+        //       iconSize: [20, 20],
+        //       iconAnchor: [10, 10],
+        //     }),
+        //   }).addTo(map);
+        //   */
+        //
+        //   map.fitBounds(e.target.getBounds());
+        //
+        //   const this_path = e.target._path;
+        //   map.eachLayer(l => {
+        //     if (l._path != this_path && l._path != undefined) {
+        //       l.setStyle({
+        //         fillColor: '#000',
+        //         opacity: 0.8,
+        //         fillOpacity: 0.8
+        //       });
+        //     }
+        //   });
+        // });
         layer.on('click', e => {
           clicked = true
           clickedElem = e.target
@@ -71,31 +130,32 @@ d3.json('/geojson')
             opacity: 0,
             fillOpacity: 0
           });
+          const countryName = e.target.feature.properties.ADMIN;
+          btnPerspective3D.setAttribute("country", countryName)
+          console.log(e.target)
+          d3.csv(`/country/${countryName}`).then(data => {
+            console.log("data", data)
+            data.forEach((d) => {
+              if (!(d.year in populationData)) {
+                populationData[d.year] = [];
+              }
 
+              populationData[d.year].push({lng: d.X, lat: d.Y, pop: d.Z});
+            })
+            console.log(populationData)
+
+            slider.noUiSlider.on('update', (values, handle) => {
+              const year = parseInt(values[handle]);
+              heatmapData = []
+              populationData[year].forEach(datum => heatmapData.push([datum.lat, datum.lng, datum.pop]))
+              map.removeLayer(heatmap);
+              heatmap = L.heatLayer(heatmapData, {
+                radius: radius,
+                gradient: gradient
+              }).addTo(map);
+            });
+          })
           // Markers to see the bounds of the country
-          /*
-          const markerShape = "M0,-10L10,10L-10,10Z";
-          const arrGeo = [this.getBounds()._northEast.lat, this.getBounds()._northEast.lng] //, this.getBounds()._southWest.lat, this.getBounds()._southWest.lng]
-          const marker = L.marker(arrGeo, {
-            icon: L.divIcon({
-              className: 'my-div-icon',
-              html: '<svg width="20" height="20"><path d="' + markerShape + '" fill="red"></path></svg>',
-              iconSize: [20, 20],
-              iconAnchor: [10, 10],
-            }),
-          }).addTo(map);
-          
-          const arrGeo2 = [this.getBounds()._southWest.lat, this.getBounds()._southWest.lng]
-          const marker2 = L.marker(arrGeo2, {
-            icon: L.divIcon({
-              className: 'my-div-icon',
-              html: '<svg width="20" height="20"><path d="' + markerShape + '" fill="red"></path></svg>',
-              iconSize: [20, 20],
-              iconAnchor: [10, 10],
-            }),
-          }).addTo(map);
-          */
-          
           map.fitBounds(e.target.getBounds());
 
           const this_path = e.target._path;
@@ -109,51 +169,52 @@ d3.json('/geojson')
             }
           });
         });
-      },
+      }
     }).addTo(map)
   });
 
 
-d3.csv("/swiss_all").then((data) => {
-  data.forEach((d) => {
-    if(!(d.year in populationData)) {
-      populationData[d.year] = [];
-    }
-
-    populationData[d.year].push({lng: d.X, lat: d.Y, pop: d.Z});
-  })
-
-  const min = Number(d3.min(data, function(datum) { return datum.year; }))
-  const max = Number(d3.max(data, function(datum) { return datum.year; }))
-
-  noUiSlider.create(slider, {
-    range: {
-      min: min,
-      max: max
-    },
-    step: 1,
-    tooltips: true,
-    start: [min],
-    behaviour: 'tap-drag',
-  });
-
-  slider.noUiSlider.on('update', (values, handle) => {
-    const year = parseInt(values[handle]);
-    heatmapData = []
-    populationData[year].forEach(datum => heatmapData.push([datum.lat, datum.lng, datum.pop]))
-    map.removeLayer(heatmap);
-    heatmap = L.heatLayer(heatmapData,{
-      radius: radius,
-      gradient: gradient
-    }).addTo(map);
-  });
-
-  // Access the parsed data through the data variable
-  // Create a Leaflet map and add it to the DOM
-});
-document.querySelector(`#Perspective_3d`).addEventListener(`click`, _ => {
-  alert("Go 3D")
-})
+// d3.csv("/swiss_all").then((data) => {
+//   console.log(data)
+//   data.forEach((d) => {
+//     if(!(d.year in populationData)) {
+//       populationData[d.year] = [];
+//     }
+//
+//     populationData[d.year].push({lng: d.X, lat: d.Y, pop: d.Z});
+//   })
+//
+//   const min = Number(d3.min(data, function(datum) { return datum.year; }))
+//   const max = Number(d3.max(data, function(datum) { return datum.year; }))
+//
+//   noUiSlider.create(slider, {
+//     range: {
+//       min: min,
+//       max: max
+//     },
+//     step: 1,
+//     tooltips: true,
+//     start: [min],
+//     behaviour: 'tap-drag',
+//   });
+//
+//   slider.noUiSlider.on('update', (values, handle) => {
+//     const year = parseInt(values[handle]);
+//     heatmapData = []
+//     populationData[year].forEach(datum => heatmapData.push([datum.lat, datum.lng, datum.pop]))
+//     map.removeLayer(heatmap);
+//     heatmap = L.heatLayer(heatmapData,{
+//       radius: radius,
+//       gradient: gradient
+//     }).addTo(map);
+//   });
+//
+//   // Access the parsed data through the data variable
+//   // Create a Leaflet map and add it to the DOM
+// });
+// document.querySelector(`#Perspective_3d`).addEventListener(`click`, _ => {
+//   alert("Go 3D")
+// })
 
 document.querySelector(`#toggleHeatmap`).addEventListener(`click`, e => {
   if (e.target.checked) {

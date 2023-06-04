@@ -20,6 +20,18 @@ app.get("/swiss_all", function (req, res) {
   res.sendFile(path.join(__dirname, "swiss_all.csv"));
 });
 
+app.get("/swiss_all_8", function (req, res) {
+  res.sendFile(path.join(__dirname, "swiss_all_8.csv"));
+});
+
+app.get("/country/:country", function (req, res) {
+  const country = req.params.country;
+  console.log(country);
+  res.sendFile(path.join(__dirname, "static/data", country + ".csv"));
+  // res.sendFile(path.join(__dirname, "swiss_all.csv"));
+});
+
+
 app.listen(3000, function () {
   console.log('Server listening on port 3000');
 });
