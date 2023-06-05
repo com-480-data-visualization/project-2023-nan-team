@@ -4,6 +4,7 @@ const btnPerspective3D = document.getElementById("Perspective_3d");
 const btn3Dquit = document.getElementById("quit3D");
 const map2 = document.getElementById("map");
 const radiusButton = document.getElementById("radiusInput");
+const graph = document.getElementById("graph");
 
 let mergedMeshes = []; // Declare an array to store all merged meshes
 
@@ -29,6 +30,7 @@ let clicked = false
 let clickedElem = null
 let radius = 5
 let heatmapData = []
+let country
 
 noUiSlider.create(slider, {
   range: {
@@ -98,7 +100,8 @@ d3.json('/geojson')
         layer.on('click', e => {
           // heatmap = L.heatLayer([]).addTo(map);
           heatmap.setLatLngs([]);
-
+          // allow selection
+          map.selectArea.enable();
           // Refresh the heat layer to reflect the changes
           clicked = true
           clickedElem = e.target
@@ -109,6 +112,7 @@ d3.json('/geojson')
           });
 
           const countryName = e.target.feature.properties.ADMIN;
+          country = countryName;
           btnPerspective3D.setAttribute("country", countryName)
           d3.csv(`/country/${countryName}`).then(data => {
             data.forEach((d) => {
@@ -159,6 +163,127 @@ document.querySelector(`#toggleHeatmap`).addEventListener(`click`, e => {
 
   map.removeLayer(heatmap);
 })
+
+const graphDiv = document.querySelector("#graph");
+
+map.on({
+  'areaselected': (e) => {
+    L.Util.requestAnimFrame(() => {
+      map2.style.width = '50%';
+      graphDiv.style.width = '50%';
+      graphDiv.innerHTML = '<div class="quitBtn" id="quitGraph"><span>X</span></div>';
+      document.querySelector('#quitGraph').addEventListener("click", function(e) {
+        map2.style.width = '90%';
+        graphDiv.style.width = '0%';
+        const svg = document.querySelector("#graphSVG");
+        graphDiv.innerHTML = '';
+      })
+      graphDiv.innerHTML += '<h2> Population growth </h2>';
+      // set the dimensions and margins of the graph
+      const margin = {top: 30, right: 50, bottom: 50, left: 30};
+      const graphWidth = graphDiv.offsetWidth - margin.left - margin.right;
+      const graphHeight = graphDiv.offsetHeight - margin.top - margin.bottom;
+    // append the svg object to the body of the page
+    var svg = d3.select("#graph")
+    .append("svg")
+    .attr("id", "graphSVG")
+    .attr("width", graphWidth)
+    .attr("height", graphHeight)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin.left + "," + margin.top + ")");
+      d3.csv(`/country/${country}`).then(data => {
+        let dataSelected = [];
+        data.forEach((d) => {
+          if (!(d.year-2000 in dataSelected)) {
+            dataSelected[d.year-2000] = 0;
+          }
+          if(e.bounds.contains({lat: d.Y, lng: d.X})){  
+            dataSelected[d.year-2000] += parseInt(d.Z) * 5;
+          }
+        })
+
+
+      // Calculate the chart area dimensions
+      const chartWidth = graphWidth - margin.left - margin.right;
+      const chartHeight = graphHeight - margin.top - margin.bottom;
+
+      // Create a scale for the x-axis
+      const xScale = d3.scaleLinear()
+        .domain([0, 20])
+        .range([0, chartWidth]);
+
+      // Create a scale for the y-axis
+      const yScale = d3.scaleLinear()
+        .domain([0, d3.max(dataSelected)])
+        .range([chartHeight, 0]);
+
+      // Create a line generator
+      const line = d3.line()
+        .x((d, i) => xScale(i))
+        .y((d) => yScale(d));
+
+      // Clear svg
+      svg.selectAll("*").remove();
+
+      // Create the x-axis
+      svg.append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top + chartHeight})`)
+        .call(d3.axisBottom(xScale));
+
+      // Create the y-axis
+      svg.append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`)
+        .call(d3.axisLeft(yScale));
+
+      // Create the line path
+      svg.append("path")
+      .datum(dataSelected)      
+      .attr("transform", `translate(${margin.left}, ${margin.top})`)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 2)
+      .attr("d", line); 
+
+      
+    // Append circles for data points
+   
+
+    // Tooltip function for displaying values
+    const tooltip = d3.select("#graph")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+      var mouseover = function(d) {
+        tooltip
+          .style("opacity", 1)
+          .html(`Value: ${dataSelected}`)
+          .style("left", `${d3.event.pageX}px`)
+          .style("top", `${d3.event.pageY}px`);
+      }
+
+      var mouseout = function(d) {
+        tooltip.style("opacity", 0);
+      }
+      svg.selectAll("circle")
+      .data(dataSelected)
+      .enter()
+      .append("circle")      
+      .attr("transform", `translate(${margin.left}, ${margin.top})`)
+      .attr("cx", (d, i) => xScale(i))
+      .attr("cy", (d) => yScale(d))
+      .attr("r", 5)
+      .attr("fill", "steelblue")
+      .on("mouseover", mouseover)
+      .on("mouseout", mouseout);
+
+      
+      });
+    });
+  },
+});
+
 
 /* // TODO: find a good way to compute the radius based on the zoom level
 map.on('zoom', function() {
