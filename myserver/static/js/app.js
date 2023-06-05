@@ -5,6 +5,7 @@ const btn3Dquit = document.getElementById("quit3D");
 const map2 = document.getElementById("map");
 const radiusButton = document.getElementById("radiusInput");
 const graph = document.getElementById("graph");
+const graphDiv = document.querySelector("#graph");
 
 let mergedMeshes = []; // Declare an array to store all merged meshes
 
@@ -164,21 +165,47 @@ document.querySelector(`#toggleHeatmap`).addEventListener(`click`, e => {
   map.removeLayer(heatmap);
 })
 
-const graphDiv = document.querySelector("#graph");
 
 map.on({
   'areaselected': (e) => {
     L.Util.requestAnimFrame(() => {
       map2.style.width = '50%';
       graphDiv.style.width = '50%';
-      graphDiv.innerHTML = '<div class="quitBtn" id="quitGraph"><span>X</span></div>';
-      document.querySelector('#quitGraph').addEventListener("click", function(e) {
+
+      // Create a new div element
+      var newDiv = document.createElement('div');
+
+      // Set any desired properties or attributes to the new div
+      newDiv.classList.add('quitBtn');
+      newDiv.setAttribute('id', 'quitGraph');
+
+      // Create a new span element
+      var newSpan = document.createElement('span');
+
+      // Set any desired properties or attributes to the span
+      newSpan.textContent = 'X';
+      // Append the span element to the div element
+      newDiv.appendChild(newSpan);
+
+      newDiv.onclick = function() {
+        alert("clicked");
         map2.style.width = '90%';
         graphDiv.style.width = '0%';
         const svg = document.querySelector("#graphSVG");
         graphDiv.innerHTML = '';
-      })
-      graphDiv.innerHTML += '<h2> Population growth </h2>';
+      };
+
+      // Add a click event listener to the new div
+      newDiv.addEventListener('click', function() {
+        alert("clicked");
+        map2.style.width = '90%';
+        graphDiv.style.width = '0%';
+        const svg = document.querySelector("#graphSVG");
+        graphDiv.innerHTML = '';
+      });
+      graphDiv.appendChild(newDiv);
+
+      graphDiv.innerHTML += '<h2 onclick="alert("hello")"> Population growth </h2>';
       // set the dimensions and margins of the graph
       const margin = {top: 30, right: 50, bottom: 50, left: 30};
       const graphWidth = graphDiv.offsetWidth - margin.left - margin.right;
@@ -305,9 +332,10 @@ btn3Dquit.addEventListener("click", function() {
   mergedMeshes.forEach(function(mergedMesh) {
     scene.remove(mergedMesh);
   });
-  
+
   container.style.visibility = "hidden";
   map2.style.visibility = "visible";
+  graphDiv.style.visibility = "visible";
 });
 
 // THREEJS Part
@@ -337,6 +365,7 @@ let currentYear = 2000; // Default year
 
 btnPerspective3D.addEventListener("click", e => {
   map2.style.visibility = "hidden";
+  graphDiv.style.visibility = "hidden";
 
   loading.style.visibility = "visible";
   loading.style.top = "50%";
