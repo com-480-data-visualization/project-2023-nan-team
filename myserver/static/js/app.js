@@ -162,26 +162,34 @@ document.querySelector(`#toggleHeatmap`).addEventListener(`click`, e => {
   map.removeLayer(heatmap);
 })
 
-
-// set the dimensions and margins of the graph
-var margin = {top: 10, right: 30, bottom: 30, left: 60},
-width = 1000 - margin.left - margin.right,
-height = 400 - margin.top - margin.bottom;
-
-
-
-// append the svg object to the body of the page
-var svg = d3.select("#graph")
-.append("svg")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom)
-.append("g")
-.attr("transform",
-      "translate(" + margin.left + "," + margin.top + ")");
+const graphDiv = document.querySelector("#graph");
 
 map.on({
   'areaselected': (e) => {
     L.Util.requestAnimFrame(() => {
+      map2.style.width = '50%';
+      graphDiv.style.width = '50%';
+      graphDiv.innerHTML = '<div class="quitBtn" id="quitGraph"><span>X</span></div>';
+      document.querySelector('#quitGraph').addEventListener("click", function(e) {
+        map2.style.width = '90%';
+        graphDiv.style.width = '0%';
+        const svg = document.querySelector("#graphSVG");
+        graphDiv.innerHTML = '';
+      })
+      graphDiv.innerHTML += '<h2> Population growth </h2>';
+      // set the dimensions and margins of the graph
+      const margin = {top: 30, right: 50, bottom: 50, left: 30};
+      const graphWidth = graphDiv.offsetWidth - margin.left - margin.right;
+      const graphHeight = graphDiv.offsetHeight - margin.top - margin.bottom;
+    // append the svg object to the body of the page
+    var svg = d3.select("#graph")
+    .append("svg")
+    .attr("id", "graphSVG")
+    .attr("width", graphWidth)
+    .attr("height", graphHeight)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin.left + "," + margin.top + ")");
       d3.csv(`/country/${country}`).then(data => {
         let dataSelected = [];
         data.forEach((d) => {
@@ -192,13 +200,11 @@ map.on({
             dataSelected[d.year-2000] += parseInt(d.Z) * 5;
           }
         })
-        
-      console.log(dataSelected)
 
 
       // Calculate the chart area dimensions
-      const chartWidth = width - margin.left - margin.right;
-      const chartHeight = height - margin.top - margin.bottom;
+      const chartWidth = graphWidth - margin.left - margin.right;
+      const chartHeight = graphHeight - margin.top - margin.bottom;
 
       // Create a scale for the x-axis
       const xScale = d3.scaleLinear()
@@ -235,11 +241,30 @@ map.on({
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 2)
-      .attr("d", line);
+      .attr("d", line); 
 
       
     // Append circles for data points
-    svg.selectAll("circle")
+   
+
+    // Tooltip function for displaying values
+    const tooltip = d3.select("#graph")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+      var mouseover = function(d) {
+        tooltip
+          .style("opacity", 1)
+          .html(`Value: ${dataSelected}`)
+          .style("left", `${d3.event.pageX}px`)
+          .style("top", `${d3.event.pageY}px`);
+      }
+
+      var mouseout = function(d) {
+        tooltip.style("opacity", 0);
+      }
+      svg.selectAll("circle")
       .data(dataSelected)
       .enter()
       .append("circle")      
@@ -251,24 +276,6 @@ map.on({
       .on("mouseover", mouseover)
       .on("mouseout", mouseout);
 
-
-    // Tooltip function for displaying values
-    const tooltip = d3.select("#chart-container")
-      .append("div")
-      .attr("class", "tooltip")
-      .style("opacity", 0);
-
-      var mouseover = function(d) {
-        tooltip
-        .style("opacity", 1)
-        .html(`Value: ${d}`)
-        .style("left", `${d3.event.pageX}px`)
-        .style("top", `${d3.event.pageY}px`);
-      }
-
-      var mouseout = function(d) {
-        tooltip.style("opacity", 0);
-      }
       
       });
     });

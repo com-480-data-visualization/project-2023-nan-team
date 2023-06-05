@@ -30,6 +30,12 @@
         margin: auto;
         padding-top: 50px;
       }
+      #visualizationContainer {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+      }
       #map {
         width: 90%;
         height: 600px;
@@ -38,6 +44,23 @@
         margin-right: auto;
         margin-bottom: auto;
         border-radius: 25px;
+        position: relative;
+      }
+      #graph {
+        width: 0%;
+        height: 600px;
+        margin-top: 20px;
+        border-radius: 25px;
+        position: relative;
+        text-align: center;
+      }
+      #quitGraph {
+        position: absolute;
+        top: 0;
+        right: 10px;
+        width: 10px;
+        height: 10px;
+        color: black;
       }
       #customsControls {
         position: absolute;
@@ -83,6 +106,13 @@
         top: 10px;
         right: 10px;
         z-index: 1000;
+      }
+      .quitBtn {
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .quitBtn:hover {
+        color:darkgrey !important;
       }
       @keyframes spin {
         0% { transform: rotate(0deg); }
@@ -194,6 +224,8 @@
       </div>
     </div>
     <div id="visualizationContainer">
+      <div id="graph">
+      </div>
       <div id="map">
         <div id="customsControls">
           <fieldset id="map-controls">
@@ -262,12 +294,10 @@
           </fieldset>
         </div>
       </div>
-      <div id="graph">
-      </div>
       <div id="loading">
       </div>
       <div id="canvas">
-        <div id="quit3D"><span>X</span></div>
+        <div class="quitBtn" id="quit3D"><span>X</span></div>
       </div>
     </div>
     <script src="/js/app.js"></script>
