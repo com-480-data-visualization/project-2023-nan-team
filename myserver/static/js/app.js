@@ -5,6 +5,8 @@ const btn3Dquit = document.getElementById("quit3D");
 const map2 = document.getElementById("map");
 const radiusButton = document.getElementById("radiusInput");
 
+let mergedMeshes = []; // Declare an array to store all merged meshes
+
 // const container = document.getElementById("canvas");
 const container = document.getElementById( 'canvas' );
 document.body.appendChild( container );
@@ -175,6 +177,10 @@ radiusButton.addEventListener(`change`, e => {
 })
 
 btn3Dquit.addEventListener("click", function() {
+  mergedMeshes.forEach(function(mergedMesh) {
+    scene.remove(mergedMesh);
+  });
+  
   container.style.visibility = "hidden";
   map2.style.visibility = "visible";
 });
@@ -222,7 +228,7 @@ btnPerspective3D.addEventListener("click", e => {
   // d3.csv("/new_3D/data/swiss_all_8.csv", function(data) {
   const countryName = e.target.getAttribute("country");
   d3.csv(`/country/${countryName}`).then(data => {
-    let mergedMeshes = []; // Declare an array to store all merged meshes
+    console.log(data)
     // make mean of data coordinates:
     let meanX = 0;
     let meanY = 0;
