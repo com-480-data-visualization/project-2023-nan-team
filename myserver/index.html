@@ -12,6 +12,7 @@
     <script src="/js/nouislider.js"></script>
     <script src="/js/three.min.js"></script>
     <script src="/js/TrackballControls.js"></script>
+    <script src="/js/Map.SelectArea.js"></script>
     <style>
       body {
         background: rgb(255,255,255);
@@ -141,6 +142,33 @@
       .map-2d-legend-color-1 {
           background-color: #E2FFF4;
       }
+          
+      .leaflet-select-control {
+            background: #ffffff;
+            padding: 5px;
+            cursor: pointer;
+      }
+
+      .leaflet-select-control:active,
+      .leaflet-select-control.active {
+          background: #cccccc;
+      }
+
+      .leaflet-select-control .icon {
+          width: 15px;
+          height: 15px;
+          display: block;
+          background: url('img/select.png') no-repeat;
+      }
+
+      .tooltip {
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 8px;
+        pointer-events: none;
+        font-size: 12px;
+      }
     </style>
   </head>
   <body id="body">
@@ -233,6 +261,8 @@
             </div>
           </fieldset>
         </div>
+      </div>
+      <div id="graph">
       </div>
       <div id="loading">
       </div>
